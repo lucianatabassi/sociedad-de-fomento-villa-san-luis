@@ -257,7 +257,42 @@
     });
   }
 
-  document.querySelectorAll('.carrusel-instalaciones').forEach(iniciarInstalaciones);
-  document.querySelectorAll('.carrusel-galeria').forEach(iniciarGaleria);
-  document.querySelectorAll('.carrusel-salon').forEach(iniciarSalon);
+    /* ---------- Montaje responsive ----------
+     Los carruseles reorganizan el DOM según el ancho de pantalla. Para que
+     el cambio de breakpoint (rotar el dispositivo, redimensionar la ventana)
+     no deje la estructura vieja, se guarda una copia limpia de cada carrusel
+     y se reconstruye cuando cambia el modo. */
+  function montarResponsive(selector, iniciar, consultas) {
+    var mqls = consultas.map(function (q) { return window.matchMedia(q); });
+
+    function modoActual() {
+      return mqls.map(function (m) { return m.matches ? '1' : '0'; }).join('');
+    }
+
+    document.querySelectorAll(selector).forEach(function (el) {
+      var original = el.cloneNode(true); // copia limpia, antes de tocar el DOM
+      var vigente = el;
+      var modo = modoActual();
+      iniciar(vigente);
+
+      function reconstruir() {
+        var nuevoModo = modoActual();
+        if (nuevoModo === modo) { return; }
+        modo = nuevoModo;
+        var nuevo = original.cloneNode(true);
+        vigente.parentNode.replaceChild(nuevo, vigente);
+        vigente = nuevo;
+        iniciar(vigente);
+      }
+
+      mqls.forEach(function (m) {
+        if (m.addEventListener) { m.addEventListener('change', reconstruir); }
+        else { m.addListener(reconstruir); } // Safari viejo
+      });
+    });
+  }
+
+  montarResponsive('.carrusel-instalaciones', iniciarInstalaciones, ['(max-width: 1279px)']);
+  montarResponsive('.carrusel-galeria', iniciarGaleria, ['(max-width: 767px)']);
+  montarResponsive('.carrusel-salon', iniciarSalon, ['(max-width: 767px)']);
 })();
