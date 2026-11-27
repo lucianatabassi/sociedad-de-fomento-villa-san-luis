@@ -927,16 +927,19 @@ main > section.seccion-formulario button[type="submit"]:hover {
 .menu-footer {
   grid-column: 1;
   grid-row: 2;
+  min-width: 0;
 }
 
 .contacto-footer {
   grid-column: 2;
   grid-row: 2;
+  min-width: 0;
 }
 
 .menu-footer .lista-footer,
 .contacto-footer .lista-footer {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-lista-footer);
   font-size: var(--texto-secundario);
 }
@@ -946,7 +949,14 @@ main > section.seccion-formulario button[type="submit"]:hover {
   display: flex;
   align-items: center;
   gap: var(--espacio-texto-comodidades);
+  min-width: 0;
+  max-width: 100%;
   text-decoration: none;
+}
+
+.contacto-footer .lista-footer a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .menu-footer .lista-footer a {
