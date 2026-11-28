@@ -1,8 +1,3 @@
-/* ==========================================================================
-   Sociedad de Fomento Villa San Luis — Estructura principal con CSS Grid
-   Mobile-first: base = mobile (<768px, 4 col) · tablet 768px–1279px (8 col) · desktop ≥1280px (12 col)
-   ========================================================================== */
-
 /* ---------- 1. Variables ---------- */
 :root {
   /* Colores */
@@ -132,18 +127,6 @@ a { color: inherit; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 address { font-style: normal; }
 
-/* Texto solo para lectores de pantalla (el título existe en el documento pero no se ve) */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 
 body {
   font-family: var(--tipo-texto);
