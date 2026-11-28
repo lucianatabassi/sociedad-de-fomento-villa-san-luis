@@ -81,6 +81,8 @@
   --margen: 24px;
   --ancho-max: 1600px;
   --col-max: calc((var(--ancho-max) - 2 * var(--margen) - (var(--columnas) - 1) * var(--gutter)) / var(--columnas));
+  /* Dónde empieza el contenido: alinea los bloques a sangre con la columna central */
+  --margen-lateral: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
 
   /* Alias responsive (se redefinen en cada breakpoint) */
   --espacio-secciones: var(--espacio-secciones-mobile);
@@ -123,12 +125,25 @@
 /* ---------- 2. Reset y base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
-body, h1, h2, h3, h4, p, ul, ol, address { margin: 0; }
+body, h1, h2, h3, p, ul, ol, address { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 img, iframe { display: block; max-width: 100%; }
 a { color: inherit; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 address { font-style: normal; }
+
+/* Texto solo para lectores de pantalla (el título existe en el documento pero no se ve) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 body {
   font-family: var(--tipo-texto);
@@ -137,7 +152,7 @@ body {
   background: var(--color-fondo);
 }
 
-h1, h2, h3, h4 { font-family: var(--tipo-titulos); }
+h1, h2, h3 { font-family: var(--tipo-titulos); }
 h1 { font-size: var(--titulo-principal); }
 h2 { font-size: var(--titulo-seccion); }
 h3 { font-size: var(--titulo-tarjeta); }
@@ -153,14 +168,6 @@ body {
     [full-end];
   column-gap: var(--gutter);
   grid-template-rows: auto 1fr auto;
-}
-
-.encabezado,
-main,
-.footer {
-  grid-column: full-start / full-end;
-  display: grid;
-  grid-template-columns: subgrid;
 }
 
 /* ---------- 4. Header ---------- */
@@ -195,10 +202,8 @@ main,
   object-fit: contain;
 }
 
-.encabezado .titulo-navbar,
-.encabezado .titulo-hero {
+.encabezado .titulo-navbar {
   display: block;
-  font-family: var(--tipo-titulos);
   font-size: var(--titulo-pequeño);
   font-weight: 600;
   line-height: 1.1;
@@ -211,6 +216,7 @@ main,
 .nav-bar {
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .nav-bar a:not(.boton-contacto) {
@@ -274,15 +280,12 @@ main,
     order: 1;
   }
 
-  .encabezado .titulo-navbar,
-  .encabezado .titulo-hero {
+  .encabezado .titulo-navbar {
     order: 2;
-    margin-right: auto;
   }
 
   .nav-bar {
     order: 3;
-    margin-left: auto;
   }
 
   .menu-hamburguesa .nav-link {
@@ -303,6 +306,9 @@ main,
 
 /* ---------- 5. Main ---------- */
 main {
+  grid-column: full-start / full-end;
+  display: grid;
+  grid-template-columns: subgrid;
   grid-row: 1 / 3;
   row-gap: var(--espacio-secciones);
   padding-bottom: var(--espacio-secciones);
@@ -337,10 +343,6 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.hero .titulo-hero {
-  display: none;
 }
 
 .hero-bottom {
@@ -378,42 +380,69 @@ main > section:not(.hero) > * { grid-column: 1 / -1; }
 }
 
 .introduccion {
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: var(--espacio-título-texto);
 }
 
-.introduccion .titulo-seccion {
-  color: var(--color-primario);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
 .introduccion .titulo-seccion em {
   font-style: italic;
 }
 
-.introduccion .descripcion-seccion {
-  color: var(--color-texto-principal);
-}
-
 .img-lateral-seccion {
-  grid-column: 1 / -1;
   width: 100%;
   height: auto;
   object-fit: cover;
   border-radius: 8px;
 }
 
-/* ---------- Sección Quiénes somos ---------- */
-main > section.seccion-quienes-somos {
+/* ---------- Secciones a sangre ---------- */
+main > section.seccion-quienes-somos,
+main > section.seccion-salon,
+main > section.seccion-instalaciones,
+main > section.seccion-galeria,
+main > section.seccion-ubicacion,
+main > section.seccion-formulario {
   grid-column: full-start / full-end;
   display: block;
+}
+
+/* ---------- Encabezados y títulos de sección (compartidos) ---------- */
+.heading-secciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-título-texto);
+}
+
+.titulo-seccion {
+  color: var(--color-primario);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Sobre fondo oscuro el título toma el color de la sección */
+main > section.seccion-salon .titulo-seccion,
+main > section.seccion-formulario .titulo-seccion {
+  color: inherit;
+}
+
+main > section.seccion-instalaciones .heading-secciones,
+main > section.seccion-galeria .heading-secciones,
+main > section.seccion-ubicacion .heading-secciones {
+  margin-bottom: var(--espacio-titulo-img);
+}
+
+main > section.seccion-instalaciones .heading-secciones,
+main > section.seccion-galeria .heading-secciones {
+  padding-inline: var(--margen-lateral);
+}
+
+/* ---------- Sección Quiénes somos ---------- */
+main > section.seccion-quienes-somos {
   background-color: var(--color-secundario);
   padding-block: var(--espacio-secciones);
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
+  padding-inline: var(--margen-lateral);
 }
 
 .contenedor-quienes-somos {
@@ -443,39 +472,15 @@ main > section.seccion-quienes-somos {
 }
 
 .titulo-card-quienes-somos {
-  font-size: var(--titulo-tarjeta);
   font-weight: 600;
-}
-
-.texto-card-quienes-somos {
-  font-size: var(--texto-principal);
 }
 
 /* ---------- Sección Salón ---------- */
 main > section.seccion-salon {
-  grid-column: full-start / full-end;
-  display: block;
   background-color: var(--color-primario);
   color: var(--color-fondo);
   padding-block: var(--padding-sección-salon-desktop);
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
-}
-
-main > section.seccion-salon .heading-secciones {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-título-texto);
-}
-
-main > section.seccion-salon .titulo-seccion {
-  font-size: var(--titulo-seccion);
-  color: var(--color-fondo);
-  font-weight: 600;
-}
-
-main > section.seccion-salon .descripcion-seccion {
-  font-size: var(--texto-principal);
-  color: var(--color-fondo);
+  padding-inline: var(--margen-lateral);
 }
 
 main > section.seccion-salon .contenedor-comodidades {
@@ -504,7 +509,6 @@ main > section.seccion-salon .items-comodidades-salon > div {
 
 main > section.seccion-salon .titulo-comodidades-salon {
   font-size: var(--titulo-pequeño);
-  color: var(--color-texto-principal);
 }
 
 main > section.seccion-salon .texto-comodidades-salon {
@@ -545,7 +549,6 @@ main > section.seccion-salon .titulo-card-salon {
   top: 16px;
   left: 16px;
   z-index: 2;
-  font-size: var(--titulo-tarjeta);
   color: var(--color-fondo);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
 }
@@ -562,8 +565,6 @@ main > section.seccion-salon .titulo-card-salon {
   justify-content: center;
   width: var(--tamano-flecha-carrusel);
   height: var(--tamano-flecha-carrusel);
-  color: var(--color-texto-principal);
-  transition: transform 0.2s ease;
 }
 
 .flecha-izq-carrusel img,
@@ -577,24 +578,6 @@ main > section.seccion-salon .titulo-card-salon {
 .flecha-der-carrusel { right: 16px; }
 
 /* ---------- Sección Instalaciones ---------- */
-main > section.seccion-instalaciones {
-  grid-column: full-start / full-end;
-  display: block;
-  padding-inline: 0;
-}
-
-main > section.seccion-instalaciones .heading-secciones {
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
-  margin-bottom: var(--espacio-titulo-img);
-}
-
-main > section.seccion-instalaciones .titulo-seccion {
-  font-size: var(--titulo-seccion);
-  color: var(--color-primario);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
 main > section.seccion-instalaciones .carrusel-instalaciones {
   position: relative;
   margin-bottom: var(--espacio-img-instalaciones);
@@ -607,8 +590,6 @@ main > section.seccion-instalaciones .carrusel-instalaciones:last-child {
 
 main > section.seccion-instalaciones .info-instalaciones {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr;
 }
 
 main > section.seccion-instalaciones .info-instalaciones[hidden] {
@@ -616,65 +597,34 @@ main > section.seccion-instalaciones .info-instalaciones[hidden] {
 }
 
 main > section.seccion-instalaciones .img-instalaciones {
-  grid-column: 1;
   width: 100%;
   object-fit: cover;
   z-index: 0;
 }
 
 main > section.seccion-instalaciones .degrade-instalaciones {
-  grid-column: 1;
   z-index: 1;
   pointer-events: none;
 }
 
 main > section.seccion-instalaciones .texto-instalaciones {
-  grid-column: 1;
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: var(--espacio-título-texto);
-  color: var(--color-texto-principal);
-}
-
-main > section.seccion-instalaciones .titulo-carrusel-instalaciones,
-main > section.seccion-instalaciones .descripcion-carrusel-instalaciones {
-  margin: 0;
-  padding: 0;
-  color: var(--color-texto-principal);
 }
 
 main > section.seccion-instalaciones .titulo-carrusel-instalaciones {
-  font-size: var(--titulo-tarjeta);
   text-transform: uppercase;
 }
 
 /* ---------- Sección Galería ---------- */
-main > section.seccion-galeria {
-  grid-column: full-start / full-end;
-  display: block;
-  padding-inline: 0;
-}
-
-main > section.seccion-galeria .heading-secciones {
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
-  margin-bottom: var(--espacio-titulo-img);
-}
-
-main > section.seccion-galeria .titulo-seccion {
-  font-size: var(--titulo-seccion);
-  color: var(--color-primario);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
 /* Mobile y tablet: 1 columna, ocupa todo el ancho y muestra de a una imagen */
 main > section.seccion-galeria .carrusel-galeria {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  padding-inline: 0;
 }
 
 main > section.seccion-galeria .carrusel-galeria ul {
@@ -710,50 +660,21 @@ main > section.seccion-galeria .img-galeria {
 
 /* ---------- Sección Ubicación ---------- */
 main > section.seccion-ubicacion {
-  grid-column: full-start / full-end;
-  display: block;
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
+  padding-inline: var(--margen-lateral);
 }
 
-main > section.seccion-ubicacion .heading-secciones {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-título-texto);
-  margin-bottom: var(--espacio-titulo-img);
-}
-
-main > section.seccion-ubicacion .titulo-seccion {
-  font-size: var(--titulo-seccion);
-  color: var(--color-primario);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-main > section.seccion-ubicacion .descripcion-seccion {
-  font-size: var(--texto-principal);
-}
-
-main > section.seccion-ubicacion .contenedor-mapa,
-main > section.seccion-ubicacion .mapa-ubicacion,
 main > section.seccion-ubicacion iframe {
   width: 100%;
-  max-width: 100%;
-  display: block;
-}
-
-main > section.seccion-ubicacion iframe {
   height: clamp(340px, 50vw, 560px);
   border: 0;
 }
 
 /* ---------- Sección Formulario ---------- */
 main > section.seccion-formulario {
-  grid-column: full-start / full-end;
-  display: block;
   background-color: var(--color-primario);
   color: var(--color-fondo);
   padding-block: var(--margin-contenido-form);
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
+  padding-inline: var(--margen-lateral);
 }
 
 /* En mobile y tablet se oculta la imagen */
@@ -761,22 +682,7 @@ main > section.seccion-formulario img {
   display: none;
 }
 
-main > section.seccion-formulario .heading-secciones {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-título-texto);
-}
-
-main > section.seccion-formulario .titulo-seccion {
-  font-size: var(--titulo-seccion);
-  color: var(--color-fondo);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
 main > section.seccion-formulario .descripcion-seccion {
-  font-size: var(--texto-principal);
-  color: var(--color-fondo);
   max-width: 45ch;
 }
 
@@ -796,7 +702,6 @@ main > section.seccion-formulario form > p {
 
 main > section.seccion-formulario label {
   font-size: var(--texto-secundario);
-  color: var(--color-fondo);
 }
 
 main > section.seccion-formulario input,
@@ -842,7 +747,7 @@ main > section.seccion-formulario button[type="submit"]:hover {
   row-gap: var(--espacio-listas-desktop);
   column-gap: var(--gutter);
   padding-block: var(--padding-y-footer-desktop);
-  padding-inline: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
+  padding-inline: var(--margen-lateral);
   background: var(--color-primario);
   color: var(--color-fondo);
 }
@@ -876,7 +781,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
   max-width: 120px;
   height: auto;
   object-fit: contain;
-  flex-shrink: 0;
 }
 
 .footer .titulo-principal-footer {
@@ -888,7 +792,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
   line-height: 1.1;
   text-transform: uppercase;
   color: var(--color-fondo);
-  margin-bottom: 0;
 }
 
 .footer > .redes-footer > ul {
@@ -986,8 +889,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
   main > section.seccion-instalaciones .carrusel-instalaciones {
     --espacio-texto-instalaciones: var(--espacio-componentes-salon-mobile); /* 32px */
     --alto-degrade-instalaciones: 56px;
-    position: relative;
-    overflow: hidden;
     background-color: var(--color-secundario);
   }
 
@@ -1005,20 +906,11 @@ main > section.seccion-formulario button[type="submit"]:hover {
 
   main > section.seccion-instalaciones .titulo-carrusel-instalaciones,
   main > section.seccion-instalaciones .descripcion-carrusel-instalaciones {
-    margin: 0;
-    padding: 0;
-    color: var(--color-texto-principal);
     text-align: center;
-  }
-
-  main > section.seccion-instalaciones .titulo-carrusel-instalaciones {
-    font-size: var(--titulo-tarjeta);
-    text-transform: uppercase;
   }
 
   main > section.seccion-instalaciones .descripcion-carrusel-instalaciones {
     font-size: var(--texto-secundario);
-    max-width: none;
   }
 
   main > section.seccion-instalaciones .zona-fotos-instalaciones {
@@ -1058,8 +950,7 @@ main > section.seccion-formulario button[type="submit"]:hover {
     scroll-snap-stop: always;
   }
 
-  main > section.seccion-instalaciones .info-instalaciones,
-  main > section.seccion-instalaciones .info-instalaciones[hidden] {
+  main > section.seccion-instalaciones .info-instalaciones {
     display: none;
   }
 
@@ -1074,11 +965,9 @@ main > section.seccion-formulario button[type="submit"]:hover {
     pointer-events: none;
   }
 
-  /* Flechas centradas verticalmente sobre la foto */
+  /* Flechas sobre la foto (la posición vertical viene de la regla compartida) */
   main > section.seccion-instalaciones .flecha-izq-carrusel,
   main > section.seccion-instalaciones .flecha-der-carrusel {
-    top: 50%;
-    transform: translateY(-50%);
     z-index: 4;
   }
 }
@@ -1098,8 +987,7 @@ main > section.seccion-formulario button[type="submit"]:hover {
 }
 
 @media (min-width: 768px) {
-  .encabezado .titulo-navbar,
-  .encabezado .titulo-hero {
+  .encabezado .titulo-navbar {
     font-size: var(--titulo-tarjeta);
   }
 
@@ -1145,13 +1033,11 @@ main > section.seccion-formulario button[type="submit"]:hover {
   }
 
   .footer > .redes-footer {
-    align-self: flex-start;
     margin-right: auto;
   }
 
   .footer .logo-footer {
     max-width: 140px;
-    height: auto;
   }
 
   .menu-footer,
@@ -1173,26 +1059,8 @@ main > section.seccion-formulario button[type="submit"]:hover {
    DESKTOP ≥ 1280px (12 columnas)
    ========================================================================== */
 @media (min-width: 1280px) {
-  .logo {
-    order: 0;
-    margin-right: 0;
-  }
-
   .logo img {
     max-width: 76px;
-    height: auto;
-  }
-
-  .encabezado .titulo-navbar,
-  .encabezado .titulo-hero {
-    order: 0;
-    font-size: var(--titulo-tarjeta);
-    margin-right: auto;
-  }
-
-  .nav-bar {
-    order: 0;
-    margin-left: auto;
   }
 
   .icono-menu {
@@ -1272,7 +1140,13 @@ main > section.seccion-formulario button[type="submit"]:hover {
 
   main > section.seccion-instalaciones .carrusel-instalaciones {
     height: 100dvh;
-    overflow: hidden;
+
+    /* Las flechas se miden desde donde empieza el texto (--margen-lateral) */
+    --separacion-flecha-texto: 16px;
+    --posicion-flecha: max(
+      12px,
+      calc(var(--margen-lateral) - var(--tamano-flecha-carrusel) - var(--separacion-flecha-texto))
+    );
   }
 
   main > section.seccion-instalaciones .info-instalaciones {
@@ -1288,13 +1162,8 @@ main > section.seccion-formulario button[type="submit"]:hover {
     min-height: 0;
     overflow: hidden;
 
-    --inicio-texto: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
     --ancho-texto: calc((min(100% - 2 * var(--margen), var(--ancho-max) - 2 * var(--margen)) - 11 * var(--gutter)) / 3 + 3 * var(--gutter));
-    --fin-verde: calc(var(--inicio-texto) + var(--ancho-texto) + 48px);
-  }
-
-  main > section.seccion-instalaciones .info-instalaciones[hidden] {
-    display: none;
+    --fin-verde: calc(var(--margen-lateral) + var(--ancho-texto) + 48px);
   }
 
   main > section.seccion-instalaciones .img-instalaciones,
@@ -1320,12 +1189,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
     align-self: center;
     justify-self: start;
     align-items: flex-start;
-    text-align: left;
-    padding: 0;
-  }
-
-  main > section.seccion-instalaciones .descripcion-carrusel-instalaciones {
-    font-size: var(--texto-principal);
   }
 
   main > section.seccion-instalaciones .carrusel-derecho .degrade-instalaciones {
@@ -1339,20 +1202,16 @@ main > section.seccion-formulario button[type="submit"]:hover {
 
   main > section.seccion-instalaciones .carrusel-derecho .texto-instalaciones {
     grid-column: 10 / span 4;
-    grid-row: 1;
-    align-self: center;
     justify-self: end;
-    align-items: flex-start;
-    text-align: left;
-    padding: 0;
   }
 
+  /* Las flechas ocupan el margen lateral, al lado de la columna de texto y nunca encima de ella */
   main > section.seccion-instalaciones .flecha-izq-carrusel {
-    left: var(--margen);
+    left: var(--posicion-flecha);
   }
 
   main > section.seccion-instalaciones .flecha-der-carrusel {
-    right: var(--margen);
+    right: var(--posicion-flecha);
   }
 
   /* Galería */
@@ -1379,7 +1238,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
 
   main > section.seccion-galeria .carrusel-galeria li.is-activa .img-galeria {
     height: 680px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
   }
 
   main > section.seccion-galeria .flecha-izq-carrusel {
@@ -1417,7 +1275,7 @@ main > section.seccion-formulario button[type="submit"]:hover {
   main > section.seccion-formulario form {
     grid-column: 2;
     padding-left: var(--padding-cards-quienes-somos);
-    padding-right: max(var(--margen), calc((100% - var(--ancho-max)) / 2 + var(--margen)));
+    padding-right: var(--margen-lateral);
   }
 
   main > section.seccion-formulario .heading-secciones {
@@ -1435,44 +1293,17 @@ main > section.seccion-formulario button[type="submit"]:hover {
   }
 
   /* Footer */
-  .footer > .redes-footer {
-    align-self: flex-start;
-    align-content: start;
-    grid-template-rows: auto 1fr;
-    row-gap: 4px;
-    column-gap: var(--espacio-lista-footer);
-  }
-
-  .footer > .redes-footer > ul {
-    align-self: start;
-    padding-top: 2px;
-  }
-
   .footer .icono-instagram,
   .footer .icono-facebook {
     width: 28px;
-    height: auto;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .footer .icono-whatsapp,
-  .footer .icono-mail {
-    width: 20px;
-    height: auto;
-    object-fit: contain;
-    flex-shrink: 0;
   }
 
   .footer .logo-footer {
     max-width: 160px;
-    height: auto;
   }
 
   .footer .titulo-principal-footer {
-    line-height: 1.1;
     font-size: var(--titulo-tarjeta);
-    margin-bottom: 0;
   }
 
   .menu-footer {
@@ -1494,10 +1325,6 @@ main > section.seccion-formulario button[type="submit"]:hover {
 }
 
 @container card-quienes-somos (max-width: 279px) {
-  .card-quienes-somos {
-    gap: var(--espacio-texto-comodidades);
-  }
-
   .titulo-card-quienes-somos {
     font-size: var(--titulo-tarjeta-mobile);
   }
@@ -1545,11 +1372,9 @@ main > section.seccion-formulario button[type="submit"]:hover {
     display: none;
   }
 
-  main > section.seccion-galeria .carrusel-galeria li,
-  main > section.seccion-galeria .carrusel-galeria li.is-activa {
+  main > section.seccion-galeria .carrusel-galeria li {
     display: block;
     flex: 0 0 100%;
-    width: 100%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
